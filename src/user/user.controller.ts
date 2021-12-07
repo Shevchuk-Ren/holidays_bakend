@@ -66,4 +66,10 @@ export class UserController {
   findDaysOffByUser(@Body('id') id: number) {
     return this.userService.findDaysOffByUser(id);
   }
+
+  // @UseGuards(JwtAuthGuard)
+  // @Get()
+  // findUsers(@Body() role: any) {
+  //   return this.userService.getUserList(role);
+  // }
 }

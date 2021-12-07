@@ -28,6 +28,7 @@ export class AuthService {
     if (user.is_blocked) {
       return 'user blocked, contact the administration';
     }
+    this.getUserList(user.role);
     return {
       access_token: this.jwtService.sign(payload),
       id: user.id,
@@ -35,5 +36,14 @@ export class AuthService {
       role: user.role,
       is_blocked: user.is_blocked,
     };
+  }
+
+  async getUserList(userRole: any): Promise<any> {
+    console.log(userRole, 'token');
+    if (userRole === 'employee') {
+      return;
+    }
+    const user = await this.userService.findUserList(userRole);
+    console.log(user);
   }
 }

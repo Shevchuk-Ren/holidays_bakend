@@ -59,6 +59,33 @@ export class UserService {
       });
     return user;
   }
+  async findUserList(role) {
+    console.log(role, 'role');
+    switch (role) {
+      case 'hr':
+        const hrUserList = await this.userRepository
+          .createQueryBuilder('user')
+          .where('user.role=:role', { role: 'employee' })
+          .getMany()
+          .catch((error) => {
+            console.log('error', error);
+            throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+          });
+        return hrUserList;
+      case 'super_admin':
+        const adminUserList = await this.userRepository
+          .createQueryBuilder('user')
+          .where('user.role IN (:...roles)', { roles: ['employee', 'hr'] })
+          .getMany()
+          .catch((error) => {
+            console.log('error', error);
+            throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+          });
+        return adminUserList;
+      default:
+        break;
+    }
+  }
 
   async findForLogin({ email, password }: LoginUserDto): Promise<any> {
     const user = await this.userRepository
@@ -82,7 +109,6 @@ export class UserService {
       is_blocked: user.is_blocked,
       token,
     };
-
     console.log(result);
     return result;
   }
