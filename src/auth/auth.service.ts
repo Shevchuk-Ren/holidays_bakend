@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
-// import { User } from '../entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -28,22 +27,23 @@ export class AuthService {
     if (user.is_blocked) {
       return 'user blocked, contact the administration';
     }
-    this.getUserList(user.role);
-    return {
+    const token = {
       access_token: this.jwtService.sign(payload),
       id: user.id,
       name: user.first_name,
       role: user.role,
       is_blocked: user.is_blocked,
     };
+    return token;
   }
 
-  async getUserList(userRole: any): Promise<any> {
-    console.log(userRole, 'token');
-    if (userRole === 'employee') {
+  async getUserList(token: any): Promise<any> {
+    const decoded = this.jwtService.verify(token);
+
+    if (decoded.userRole === 'employee') {
       return;
     }
-    const user = await this.userService.findUserList(userRole);
-    console.log(user);
+    const user = await this.userService.findUserList(decoded.userRole);
+    return user;
   }
 }

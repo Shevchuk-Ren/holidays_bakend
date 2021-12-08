@@ -2,26 +2,14 @@ import {
   Body,
   Controller,
   Get,
-  Header,
-  HttpCode,
-  HttpStatus,
   Param,
   Post,
   Patch,
   UseGuards,
 } from '@nestjs/common';
-import { User } from '../entities/user.entity';
-import { UpdateResult } from 'typeorm';
-import {
-  CreateUserDto,
-  UpdateUserDto,
-  LoginUserDto,
-  BlockUserDto,
-  UserDto,
-} from './user.dto';
+import { CreateUserDto, UpdateUserDto, BlockUserDto } from './user.dto';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-// import { Role } from '../role/role.enum';
 
 @Controller('/user')
 export class UserController {
@@ -66,10 +54,4 @@ export class UserController {
   findDaysOffByUser(@Body('id') id: number) {
     return this.userService.findDaysOffByUser(id);
   }
-
-  // @UseGuards(JwtAuthGuard)
-  // @Get()
-  // findUsers(@Body() role: any) {
-  //   return this.userService.getUserList(role);
-  // }
 }

@@ -1,14 +1,10 @@
 import { HttpStatus, HttpException, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Connection } from 'typeorm';
 import { v4 as uuid4 } from 'uuid';
-import { EntityRepository } from 'typeorm';
 import { UserRepository } from './user.repository';
 import { User } from 'src/entities/user.entity';
 import {
   CreateUserDto,
   FindByEmailDto,
-  UpdateUserDto,
   LoginUserDto,
   BlockUserDto,
 } from './user.dto';
@@ -19,7 +15,7 @@ const bcrypt = require('bcrypt');
 
 @Injectable()
 export class UserService {
-  constructor(private userRepository: UserRepository) {}
+  constructor(private readonly userRepository: UserRepository) {}
 
   async create(dto: CreateUserDto): Promise<User> {
     try {
@@ -27,7 +23,6 @@ export class UserService {
       const genPassword = uuidPass[0].toString();
       // шифруем пароль перед сохранением в базе
       const password = bcrypt.hashSync(genPassword, bcrypt.genSaltSync(10));
-      // console.log(password);
       const newUser = { ...dto, genPassword };
       const user = await this.userRepository.create(newUser);
       console.log(user);
@@ -59,8 +54,7 @@ export class UserService {
       });
     return user;
   }
-  async findUserList(role) {
-    console.log(role, 'role');
+  async findUserList(role): Promise<User[]> {
     switch (role) {
       case 'hr':
         const hrUserList = await this.userRepository
@@ -72,6 +66,7 @@ export class UserService {
             throw new HttpException('Not found', HttpStatus.NOT_FOUND);
           });
         return hrUserList;
+
       case 'super_admin':
         const adminUserList = await this.userRepository
           .createQueryBuilder('user')
@@ -82,8 +77,9 @@ export class UserService {
             throw new HttpException('Not found', HttpStatus.NOT_FOUND);
           });
         return adminUserList;
+
       default:
-        break;
+        return hrUserList;
     }
   }
 
@@ -109,7 +105,7 @@ export class UserService {
       is_blocked: user.is_blocked,
       token,
     };
-    console.log(result);
+    console.log(result, 'RESULT');
     return result;
   }
 
@@ -160,7 +156,16 @@ export class UserService {
       console.log(e.message);
     }
   }
-
+  // async get(): Promise<User[]> {
+  //   const users = await this.userRepository
+  //     .createQueryBuilder('user')
+  //     .getMany()
+  //     .catch((error) => {
+  //       console.log(error.message);
+  //       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+  //     });
+  //   return users;
+  // }
   // async loginUser(dto: LoginUserDto) {
   //   const email = dto.email;
   //   const user = await await this.userRepository.findOne({
