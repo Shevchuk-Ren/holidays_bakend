@@ -37,7 +37,7 @@ export class AuthService {
     return token;
   }
 
-  async getUserList(token: any): Promise<any> {
+  async getUserList(token: string): Promise<any> {
     const decoded = this.jwtService.verify(token);
 
     if (decoded.userRole === 'employee') {
